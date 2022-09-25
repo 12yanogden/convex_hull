@@ -10,9 +10,9 @@ import time
 
 from which_pyqt import PYQT_VER
 if PYQT_VER == 'PYQT5':
-	from PyQt5.QtWidgets import *
-	from PyQt5.QtGui import *
-	from PyQt5.QtCore import *
+	from PyQt6.QtWidgets import *
+	from PyQt6.QtGui import *
+	from PyQt6.QtCore import *
 elif PYQT_VER == 'PYQT4':
 	from PyQt4.QtGui import *
 	from PyQt4.QtCore import *
@@ -78,7 +78,7 @@ class PointLineView( QWidget ):
 
 	def paintEvent(self, event):						  
 		painter = QPainter(self)
-		painter.setRenderHint(QPainter.Antialiasing,True)
+		# painter.setRenderHint(QPainter.Antialiasing,True)
 
 		w = self.width() / 2.0
 		h = self.height() / 2.0
@@ -194,7 +194,7 @@ class Proj2GUI( QMainWindow ):
 # problem instance/solution request (a set of points) to the solver, along with 
 # the recursion flag to indicate whether to animate the solution
 # and a view object so the GUI can be updated
-	def solveClicked(self):
+	def solve_clicked(self):
 		self.generateButton.setEnabled(False)
 		self.clearButton.setEnabled(False)
 		self.solveButton.setEnabled(False)
@@ -278,7 +278,7 @@ class Proj2GUI( QMainWindow ):
 		vbox.addLayout(h)
 
 		self.generateButton.clicked.connect(self.generateClicked)
-		self.solveButton.clicked.connect(self.solveClicked)
+		self.solveButton.clicked.connect(self.solve_clicked)
 		self.clearButton.clicked.connect(self.clearClicked)
 
 		self.randByTime.clicked.connect(self._randbytime)
