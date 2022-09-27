@@ -1,4 +1,5 @@
 from LowerTangent import LowerTangent
+from Point import Point
 from UpperTangent import UpperTangent
 from which_pyqt import PYQT_VER
 from Hull import Hull
@@ -20,14 +21,6 @@ BLUE = (0, 0, 255)
 # Global variable that controls the speed of the recursion automation, in seconds
 #
 PAUSE = 0.25
-
-
-#
-# This is the class you have to complete.
-#
-def get_x_from_point(point):
-    return point.x()
-
 
 class ConvexHullSolver(QObject):
 
@@ -62,76 +55,34 @@ class ConvexHullSolver(QObject):
     def show_text(self, text):
         self.view.displayStatusText(text)
 
-    def calc_right_most_index(self, points):
-        right_most_index = 0
-
-        for i in range(1, len(points)):
-            if points[right_most_index].x() < points[i].x():
-                right_most_index = i
-
-        return right_most_index
-
+    # Time: O(1) Space: O(n)
     def join_hulls(self, left_hull, right_hull, upper_tangent, lower_tangent):
-        left_hull_current_index = left_hull.get_left_most_index() + 1
-        right_hull_current_index = upper_tangent.get_right_index()
-        new_hull = Hull([left_hull.get_point_by_index(left_hull_current_index)])
+        new_hull = Hull(left_hull.get_left_most(), right_hull.get_right_most())
 
-        # Left most to upper left
-        while left_hull_current_index < upper_tangent.get_left_index():
-            new_hull.add_point(left_hull.get_point_by_index(left_hull_current_index))
-            left_hull_current_index = left_hull.increment_index(left_hull_current_index)
-
-        # Add upper tangent's left point
-        new_hull.add_point(upper_tangent.get_left_point())
-
-        # Upper right to lower right
-        while right_hull_current_index < lower_tangent.get_right_index():
-            new_hull.add_point(right_hull.get_point_by_index(right_hull_current_index))
-            right_hull_current_index = right_hull.increment_index(right_hull_current_index)
-
-        # Add lower tangent's right point
-        new_hull.add_point(lower_tangent.get_right_point())
-
-        # Set left_hull_current_index
-        left_hull_current_index = lower_tangent.get_left_index()
-
-        # Lower left to left most
-        while left_hull_current_index != left_hull.get_left_most_index():
-            new_hull.add_point(left_hull.get_point_by_index(left_hull_current_index))
-            left_hull_current_index = left_hull.increment_index(left_hull_current_index)
-
-        new_hull.update_right_most_index()
-
-        self.erase_hull(left_hull.to_lines())
-        self.erase_hull(right_hull.to_lines())
-        self.show_hull(new_hull.to_lines(), RED)
+        upper_tangent.stitch()
+        lower_tangent.stitch()
 
         return new_hull
 
+    # Time: O(nlogn) Space: O(n)
     def compute_hull_helper(self, points):
-        if len(points) == 2 or len(points) == 3:
-            new_hull = Hull(points)
-            new_hull.order_clock()
-
-            self.show_hull(new_hull.to_lines(), RED)
+        if len(points) == 1:
+            single_point = Point(points[0])
+            new_hull = Hull(single_point, single_point)
 
             return new_hull
 
         middle_index = len(points) // 2
 
-        left_hull = self.compute_hull_helper(points[:middle_index])
-        right_hull = self.compute_hull_helper(points[middle_index:])
+        left_hull = self.compute_hull_helper(points[:middle_index])                             # Time: O(nlogn) (logn recursions * tangent algorithm     Space: O(n) (worst case at bottom of recursion)
+        right_hull = self.compute_hull_helper(points[middle_index:])                            # Time: O(nlogn) Space: O(n)
 
-        upper_tangent = UpperTangent(left_hull, right_hull)
-        self.show_tangent(upper_tangent.to_line(), GREEN)
+        upper_tangent = UpperTangent(left_hull.get_right_most(), right_hull.get_left_most())    # Time: O(n) Space: O(n)
+        lower_tangent = LowerTangent(left_hull.get_right_most(), right_hull.get_left_most())    # Time: O(n) Space: O(n)
 
-        lower_tangent = LowerTangent(left_hull, right_hull)
-        self.show_tangent(lower_tangent.to_line(), GREEN)
+        return self.join_hulls(left_hull, right_hull, upper_tangent, lower_tangent)             # Time: O(1) Space: O(n)
 
-        return self.join_hulls(left_hull, right_hull, upper_tangent, lower_tangent)
-
-    # This is the method that gets called by the GUI and actually executes
-    # the finding of the hull
+    # Time: O(nlogn) Space: O(n)
     def compute_hull(self, points, pause, view):
         self.pause = pause
         self.view = view
@@ -140,14 +91,14 @@ class ConvexHullSolver(QObject):
         t1 = time.time()
 
         # Sorts the points
-        points.sort(key=get_x_from_point)
+        points.sort(key=lambda point: point.x())                # Time: O(nlogn) Space: O(n)
 
         t2 = time.time()
 
         t3 = time.time()
 
         # Returns lines
-        polygon = self.compute_hull_helper(points).to_lines()
+        polygon = self.compute_hull_helper(points).to_lines()   # Time: O(nlogn) Space: O(n)
 
         t4 = time.time()
 

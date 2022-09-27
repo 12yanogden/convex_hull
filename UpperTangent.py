@@ -1,18 +1,19 @@
 from Tangent import Tangent
 
-
 class UpperTangent(Tangent):
     def cycle_left(self):
         least_slope = self.get_slope()
         cycle_count = 0
 
-        self.left_index = self.left_hull.decrement_index(self.left_index)
+        self.left = self.left.get_counter()
 
         while self.get_slope() < least_slope:
-            self.left_index = self.left_hull.decrement_index(self.left_index)
-            cycle_count = cycle_count + 1
+            least_slope = self.get_slope()
 
-        self.left_index = self.left_hull.increment_index(self.left_index)
+            self.left = self.left.get_counter()
+            cycle_count += 1
+
+        self.left = self.left.get_clock()
 
         return cycle_count
 
@@ -20,12 +21,24 @@ class UpperTangent(Tangent):
         greatest_slope = self.get_slope()
         cycle_count = 0
 
-        self.right_index = self.right_hull.increment_index(self.right_index)
+        self.right = self.right.get_clock()
 
         while self.get_slope() > greatest_slope:
-            self.right_index = self.right_hull.increment_index(self.right_index)
-            cycle_count = cycle_count + 1
+            greatest_slope = self.get_slope()
 
-        self.right_index = self.right_hull.decrement_index(self.right_index)
+            self.right = self.right.get_clock()
+            cycle_count += 1
+
+        self.right = self.right.get_counter()
 
         return cycle_count
+
+    def stitch(self):
+        self.left.set_clock(self.right)
+        self.right.set_counter(self.left)
+
+        if self.left.get_counter == self.left:
+            self.left.set_counter(self.right)
+
+        if self.right.get_clock == self.right:
+            self.right.set_clock(self.left)
