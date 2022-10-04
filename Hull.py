@@ -1,5 +1,6 @@
 from PyQt6.QtCore import QLineF
 
+
 class Hull:
     def __init__(self, left_most, right_most):
         self.left_most = left_most
@@ -11,6 +12,7 @@ class Hull:
     def get_right_most(self):
         return self.right_most
 
+    # Time: O(n) Space: O(n)
     def to_lines(self):
         lines = []
         current_point = self.left_most.get_clock()

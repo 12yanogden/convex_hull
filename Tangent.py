@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QLineF, QPointF
+from PyQt6.QtCore import QLineF
 from abc import ABC, abstractmethod
 
 
@@ -17,11 +17,11 @@ class Tangent(ABC):
     def cycle_right(self):
         pass
 
-    # Time: O(n)    Space: O(n)
+    # Time: O(n) Space: O(n)
     def orient(self):
         while True:
-            left_cycle_count = self.cycle_left()
-            right_cycle_count = self.cycle_right()
+            left_cycle_count = self.cycle_left()                    # Time: O(n) Space: O(n)
+            right_cycle_count = self.cycle_right()                  # Time: O(n) Space: O(n)
 
             if left_cycle_count == 0 and right_cycle_count == 0:
                 break

@@ -1,6 +1,3 @@
-from PyQt6.QtCore import QPoint
-
-
 class Point:
     def __init__(self, point):
         self.point = point

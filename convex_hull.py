@@ -5,9 +5,7 @@ from which_pyqt import PYQT_VER
 from Hull import Hull
 
 if PYQT_VER == 'PYQT5':
-    from PyQt6.QtCore import QLineF, QPointF, QObject
-elif PYQT_VER == 'PYQT4':
-    from PyQt4.QtCore import QLineF, QPointF, QObject
+    from PyQt6.QtCore import QPointF, QObject
 else:
     raise Exception('Unsupported Version of PyQt: {}'.format(PYQT_VER))
 
@@ -22,11 +20,13 @@ BLUE = (0, 0, 255)
 #
 PAUSE = 0.25
 
+
 class ConvexHullSolver(QObject):
 
     # Class constructor
     def __init__(self):
         super().__init__()
+        self.view = None
         self.pause = False
 
     # Some helper methods that make calls to the GUI, allowing us to send updates
@@ -74,7 +74,7 @@ class ConvexHullSolver(QObject):
 
         middle_index = len(points) // 2
 
-        left_hull = self.compute_hull_helper(points[:middle_index])                             # Time: O(nlogn) (logn recursions * tangent algorithm     Space: O(n) (worst case at bottom of recursion)
+        left_hull = self.compute_hull_helper(points[:middle_index])                             # Time: O(nlogn) Space: O(n)
         right_hull = self.compute_hull_helper(points[middle_index:])                            # Time: O(nlogn) Space: O(n)
 
         upper_tangent = UpperTangent(left_hull.get_right_most(), right_hull.get_left_most())    # Time: O(n) Space: O(n)
